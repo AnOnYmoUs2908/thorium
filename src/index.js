@@ -12,7 +12,19 @@ mongoose.connect("mongodb+srv://functionup-cohort:G0Loxqc9wFEGyEeJ@cluster0.rzot
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))
-.catch ( err => console.log(err) )
+.catch ( err => console.log(err))
+
+app.use(
+    function (req, res, next){
+   const url = req.path
+    const IP = req.ip
+    let currentDateTime = new Date()
+let formattedDate = currentDateTime.getFullYear()+"-"+(currentDateTime.getMonth()+1)+"-"+
+  currentDateTime.getDate()+" "+currentDateTime.getHours()+":"+currentDateTime.getMinutes()+
+       ":"+currentDateTime.getSeconds()
+        console.log( formattedDate + " ,", IP + " ,", url)
+    }
+)
 
 app.use('/', route);
 
