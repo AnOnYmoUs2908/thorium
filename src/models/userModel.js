@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema( {
     },
     isDeleted: { type:Boolean, default:false },
     age: Number,
+    posts: {type: [] , deafult: []}
 }, { timestamps: true });
 
 module.exports = mongoose.model('authUser', userSchema)
