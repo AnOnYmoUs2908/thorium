@@ -5,18 +5,25 @@ const createUser = async function (req, res) {
   //You can name the req, res objects anything.
   //but the first parameter is always the request 
   //the second parameter is always the response
-  let data = req.body;
+ try {
+    let data = req.body;
   let savedData = await userModel.create(data);
-  res.send({ msg: savedData });
+   res.status(201).send({ msg: savedData });
+ }
+ catch (err){
+   console.log(err)
+   res.status(500).send({msg : " Server Error" , error: err.message})
+ }
 };
 
 const loginUser = async function (req, res) {
+ try{
   let userName = req.body.emailId;
   let password = req.body.password;
 
   let user = await userModel.findOne({ emailId: userName, password: password });
   if (!user)
-    return res.send({
+    return res.status(400).send({
       status: false,
       msg: "username or the password is not corerct",
     });
@@ -29,7 +36,11 @@ const loginUser = async function (req, res) {
       "functionup-thorium"
     );
     res.setHeader("x-auth-token", token);
-    res.send({ status: true, data: token });
+    res.status(200).send({ status: true, data: token });
+ }
+ catch(err){
+   res.status(500).send({msg : " Server Error" , error : err.message})
+ }
   };
   // Once the login is successful, create the jwt token with sign function
   // Sign function has 2 inputs:
@@ -40,12 +51,17 @@ const loginUser = async function (req, res) {
  
 
  const getUserData = async function (req, res) {
-  let userId = req.params.userId;
+try {
+ let userId = req.params.userId;
   let userDetails = await userModel.findById(userId);
  if (!userDetails)
-   return res.send({ status: false, msg: "No such user exists" });
+   return res.status(404).send({ status: false, msg: "No such user exists" });
 
- res.send({ status: true, data: userDetails });
+ res.status(200).send({ status: true, data: userDetails });
+}
+catch (err){
+  res.status(500).send({msg : " Server Error" , error : err.message})
+}
 };
 // // If a token is present then decode the token with verify function
   // // verify takes two inputs:
@@ -56,16 +72,20 @@ const loginUser = async function (req, res) {
 
   
 const updateUser = async function (req, res) {
-
+try {
   let userId = req.params.userId;
   let user = await userModel.findById(userId);
    if (!user) {
-    return res.send("No such user exists");
+    return res.status(404).send("No such user exists");
   }
 
   let userData = req.body;
   let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, {$set : {age: 20}});
-  res.send({ status: true , data: updatedUser });
+  res.status(200).send({ status: true , data: updatedUser });
+}
+catch(err){
+  res.status(500).send({msg : " Server Error" , error : err.message})
+}
 };
 // Do the same steps here:
 // Check if the token is present
@@ -73,38 +93,47 @@ const updateUser = async function (req, res) {
 // Return a different error message in both these cases
 
 
- 
-
 const deleteUser = async function (req, res) {
+  try {
   let userId = req.params.userId;
   let user = await userModel.findById(userId);
 
   if (!user) {
-    return res.send("No such user exists");
+    return res.status(404).send("No such user exists");
   }
   let deleteData = req.body;
   let deletedUser = await userModel.findOneAndUpdate({ _id: userId }, {$set: {isDeleted : true}});
-  res.send({ status: true , data: deletedUser });
-  
+  res.status(200).send({ status: true , data: deletedUser });
+}
+catch (err){
+  res.status(500).send({msg : " Server Error" , error : err.message})
+}
 };
   // Do the same steps here:
   // Check if the token is present
   // Check if the token present is a valid token
   // Return a different error message in both these cases
 
-  const postMessage = async function (req, res) {
-    let user = userModel.findById(req.params.userId)
-    if(!user) return res.send({status: false, msg: 'No such user exists'})
-   
-    let postMessage = req.body.message
-    let updatedPosts = user.posts
-    //add the message to user's posts
-   updatedPosts.push(postMessage);
-    let updatedUser = await userModel.findOneAndUpdate({_id: user._id},{posts: updatedPosts}, {new: true})
+const postMessage = async function (req, res) {
+  try {
+  let message = req.body.message
 
-    //return the updated user document
-    return res.send({status: true, data: updatedUser})
+  let user = await userModel.findById(req.params.userId)
+  if(!user) return res.status(404).send({status: false, msg: 'No such user exists'})
+  
+  let updatedPosts = user.posts
+  //add the message to user's posts
+  updatedPosts.push(message)
+  let updatedUser = await userModel.findOneAndUpdate({_id: user._id},{posts: updatedPosts}, {new: true})
+
+  //return the updated user document
+  return res.status(200).send({status: true, data: updatedUser})
+  }
+  catch (err){
+    res.status(500).send({msg : " Server Error" , error : err.message})
+  }
 }
+
  // Check if the token is present
     // Check if the token present is a valid token
     // Return a different error message in both these cases
